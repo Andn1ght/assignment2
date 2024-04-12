@@ -29,33 +29,76 @@ class _ListPageState extends State<ListPage> {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true, // Ensure the modal is scrollable
       builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              TextField(controller: idController, decoration: InputDecoration(labelText: 'ID')),
-              TextField(controller: nameController, decoration: InputDecoration(labelText: 'Name')),
-              TextField(controller: groupController, decoration: InputDecoration(labelText: 'Group')),
-              ElevatedButton(
-                child: Text('Add'),
-                onPressed: () {
-                  if (idController.text.isNotEmpty &&
-                      nameController.text.isNotEmpty &&
-                      groupController.text.isNotEmpty) {
-                    setState(() {
-                      items.add(ListItem(
-                        id: idController.text,
-                        name: nameController.text,
-                        group: groupController.text,
-                      ));
-                    });
-                    Navigator.pop(context);
-                  }
-                },
-              )
-            ],
+        return SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  TextField(controller: idController, decoration: InputDecoration(labelText: 'ID')),
+                  TextField(controller: nameController, decoration: InputDecoration(labelText: 'Name')),
+                  TextField(controller: groupController, decoration: InputDecoration(labelText: 'Group')),
+                  ElevatedButton(
+                    child: Text('Add'),
+                    onPressed: () {
+                      if (idController.text.isNotEmpty &&
+                          nameController.text.isNotEmpty &&
+                          groupController.text.isNotEmpty) {
+                        String newItemId = idController.text;
+                        bool idExists = items.any((item) => item.id == newItemId);
+                        if (idExists) {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('Warning'),
+                                content: Text('An item with the same ID already exists. Do you want to substitute it?'),
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: Text('Cancel'),
+                                    onPressed: () => Navigator.pop(context),
+                                  ),
+                                  TextButton(
+                                    child: Text('Substitute'),
+                                    onPressed: () {
+                                      setState(() {
+                                        items.removeWhere((item) => item.id == newItemId);
+                                        items.add(ListItem(
+                                          id: newItemId,
+                                          name: nameController.text,
+                                          group: groupController.text,
+                                        ));
+                                      });
+                                      Navigator.pop(context); // Close the add modal
+                                      Navigator.pop(context); // Close the warning dialog
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        } else {
+                          setState(() {
+                            items.add(ListItem(
+                              id: newItemId,
+                              name: nameController.text,
+                              group: groupController.text,
+                            ));
+                          });
+                          Navigator.pop(context);
+                        }
+                      }
+                    },
+                  )
+                ],
+              ),
+            ),
           ),
         );
       },
@@ -69,27 +112,35 @@ class _ListPageState extends State<ListPage> {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true, // Ensure the modal is scrollable
       builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              TextField(controller: idController, decoration: InputDecoration(labelText: 'ID')),
-              TextField(controller: nameController, decoration: InputDecoration(labelText: 'Name')),
-              TextField(controller: groupController, decoration: InputDecoration(labelText: 'Group')),
-              ElevatedButton(
-                child: Text('Update'),
-                onPressed: () {
-                  setState(() {
-                    item.id = idController.text;
-                    item.name = nameController.text;
-                    item.group = groupController.text;
-                  });
-                  Navigator.pop(context);
-                },
-              )
-            ],
+        return SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  TextField(controller: idController, decoration: InputDecoration(labelText: 'ID')),
+                  TextField(controller: nameController, decoration: InputDecoration(labelText: 'Name')),
+                  TextField(controller: groupController, decoration: InputDecoration(labelText: 'Group')),
+                  ElevatedButton(
+                    child: Text('Update'),
+                    onPressed: () {
+                      setState(() {
+                        item.id = idController.text;
+                        item.name = nameController.text;
+                        item.group = groupController.text;
+                      });
+                      Navigator.pop(context);
+                    },
+                  )
+                ],
+              ),
+            ),
           ),
         );
       },
